@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <Account EMAIL="nobody@test.com" PASSWORD="123456" ROLE="ROLE_USER" CREATED="2016-02-07" />
+</dataset>
