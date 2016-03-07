@@ -1,5 +1,6 @@
 package com.geverson.config;
 
+import com.geverson.config.filters.CsrfHeaderFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ import com.geverson.account.AccountService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -50,34 +54,26 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        //.antMatchers("/api/public/**").permitAll()
         http
             .authorizeRequests()
-                .antMatchers(
-                        "/",
-                        "/favicon.ico",
-                        "/js/**",
-                        "/images/**",
-                        "/fonts/**",
-                        "/styles/**",
-                        "/signup")
-                .permitAll()
                 .antMatchers("/api/**").authenticated()
-            .and().httpBasic()
-            .and().csrf().and()
-            .logout()
-                .logoutUrl("/logout")
-                .permitAll()
-                .logoutSuccessUrl("/signin?logout")
-                .and()
-            .rememberMe()
-                .rememberMeServices(rememberMeServices())
-                .key("remember-me-key");
-
+                .anyRequest().permitAll().and()
+            .httpBasic().and()
+            .logout().logoutUrl("/api/logout").deleteCookies("JSESSIONID", "XSRF-TOKEN").and()
+            .csrf().csrfTokenRepository(csrfTokenRepository()).and()
+            .addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
     }
 
     @Bean(name = "authenticationManager")
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    private CsrfTokenRepository csrfTokenRepository(){
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
+        return repository;
     }
 }

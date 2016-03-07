@@ -9,8 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @RequestMapping(value = "/api/account")
+@RestController
 class AccountController {
 
     private AccountRepository accountRepository;
@@ -22,7 +22,6 @@ class AccountController {
 
     @RequestMapping(value = "/current", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     public Account currentAccount(Principal principal) {
         Assert.notNull(principal);
         return accountRepository.findOneByEmail(principal.getName());
@@ -30,8 +29,8 @@ class AccountController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    @Secured("ROLE_ADMIN")
     public Account account(@PathVariable("id") Long id) {
         return accountRepository.findOne(id);
     }
+
 }

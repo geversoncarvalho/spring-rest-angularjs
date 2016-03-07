@@ -122,7 +122,7 @@ module.exports = function() {
          * Node settings
          */
         nodeServer: server + 'app.js',
-        backendProxyAddress: 'http://localhost:8080/api',
+        backendProxyAddress: 'http://localhost:8080/',
         proxyRoutePattern: /^(\/api)(\/)?/,
         defaultPort: '8001'
     };

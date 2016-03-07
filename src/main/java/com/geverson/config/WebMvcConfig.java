@@ -14,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
@@ -50,8 +51,8 @@ class WebMvcConfig extends WebMvcConfigurationSupport {
         return messageSource;
     }
 
-    @Bean
-    public ViewResolver mainViewResolver() {
+    @Override
+    public ViewResolver mvcViewResolver() {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setPrefix(BUILD_FOLDER);
         viewResolver.setSuffix(".html");
@@ -68,7 +69,10 @@ class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(RESOURCES_HANDLERS).addResourceLocations(RESOURCES_LOCATIONS);
+        registry.addResourceHandler(RESOURCES_HANDLERS)
+                .addResourceLocations(RESOURCES_LOCATIONS)
+                .resourceChain(true)
+                .addResolver(new PathResourceResolver());
     }
 
     @Override

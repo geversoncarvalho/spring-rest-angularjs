@@ -38,8 +38,16 @@ public class UserAuthenticationIntegrationTest extends WebSecurityConfigurationA
     }
 
     @Test
+    public void shouldRespondeUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/account/current"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void userAuthenticates() throws Exception {
         final String username = "user";
+        String password = "demo";
+
         ResultMatcher matcher = new ResultMatcher() {
             public void match(MvcResult mvcResult) throws Exception {
                 HttpSession session = mvcResult.getRequest().getSession();
@@ -47,26 +55,17 @@ public class UserAuthenticationIntegrationTest extends WebSecurityConfigurationA
                 Assert.assertEquals(securityContext.getAuthentication().getName(), username);
             }
         };
-        //.andExpect(matcher)]
 
-        String credentials = "Basic " + Base64Utils.encodeToString("user:demo".getBytes());
-        mockMvc.perform(post("/api/auth").header("Authorization", credentials))
+        mockMvc.perform(get("/api/account/current").header("Authorization", getCredentials(username, password)))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
     }
 
-    @Ignore
     @Test
     public void userAuthenticationFails() throws Exception {
         final String username = "user";
-        mockMvc.perform(post("/authenticate").param("username", username).param("password", "invalid"))
-                .andExpect(redirectedUrl("/signin?error=1"))
-                .andExpect(new ResultMatcher() {
-                    public void match(MvcResult mvcResult) throws Exception {
-                        HttpSession session = mvcResult.getRequest().getSession();
-                        SecurityContext securityContext = (SecurityContext) session.getAttribute(SEC_CONTEXT_ATTR);
-                        Assert.assertNull(securityContext);
-                    }
-                });
+        String password = "wrong";
+        mockMvc.perform(get("/api/account/current").header("Authorization", getCredentials(username, password)))
+                .andExpect(status().isUnauthorized());
     }
 }
